@@ -18,8 +18,8 @@ public class TrafficLightController {
         this.service = service;
     }
     @PostMapping("/change")
-    public String changeSignal(@RequestBody ChangeSignalRequest request){
-        service.changeSignal(Direction.valueOf(request.getDirection()));
+    public String changeSignal(@RequestBody ChangeSignalRequest request,String intersectionId){
+        service.changeSignal(Direction.valueOf(request.getDirection()),request.getIntersectionId());
         return "Signal Changed";
     }
     @PostMapping("/pause")
@@ -32,9 +32,9 @@ public class TrafficLightController {
         service.resume();
         return "resumed";
     }
-    @GetMapping("/state")
-    public CurrentStateResponse state(){
-        return service.getCurrentState();
+    @GetMapping("/state/{intersectionId}")
+    public CurrentStateResponse state(@PathVariable String intersectionId){
+        return service.getCurrentState(intersectionId);
     }
     @GetMapping("/history")
     public List<SignalHistory> getHistory(){

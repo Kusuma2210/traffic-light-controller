@@ -12,4 +12,4 @@ import java.time.LocalDateTime;
 public class SignalHistory {
     private String event;
     private LocalDateTime timestamp;
-}
+ }

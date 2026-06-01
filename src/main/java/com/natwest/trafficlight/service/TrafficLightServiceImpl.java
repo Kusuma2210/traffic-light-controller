@@ -1,10 +1,7 @@
 package com.natwest.trafficlight.service;
 
 import com.natwest.trafficlight.dto.CurrentStateResponse;
-import com.natwest.trafficlight.model.Direction;
-import com.natwest.trafficlight.model.LightState;
-import com.natwest.trafficlight.model.SignalHistory;
-import com.natwest.trafficlight.model.TrafficLight;
+import com.natwest.trafficlight.model.*;
 import org.springframework.boot.webmvc.autoconfigure.DispatcherServletRegistrationBean;
 import org.springframework.stereotype.Service;
 
@@ -12,28 +9,35 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class TrafficLightServiceImpl implements TrafficLightService {
-    private final Map<Direction, TrafficLight> signals = new HashMap<>();
+    private final Map<String, Intersection> intersections = new ConcurrentHashMap<>();
     private final List<SignalHistory> history = new CopyOnWriteArrayList<>();
     private final ReentrantLock lock = new ReentrantLock();  ;
     private volatile boolean paused = false;
 
-    public TrafficLightServiceImpl(DispatcherServletRegistrationBean dispatcherServletRegistration){
-        signals.put(Direction.NORTH_SOUTH, new TrafficLight(Direction.NORTH_SOUTH, LightState.GREEN));
-        signals.put(Direction.EAST_WEST, new TrafficLight(Direction.EAST_WEST, LightState.RED));
+    public TrafficLightServiceImpl(){
+       intersections.put("JUNCTION_1", new Intersection("JUNCTION_1"));
+       intersections.put("JUNCTION_2", new Intersection("JUNCTION_2"));
 
     }
     @Override
-    public void changeSignal(Direction direction) {
+    public void changeSignal(Direction direction,String intersectionId) {
         lock.lock();
         try{
             if(paused){
                 throw new RuntimeException("Paused");
             }
+
+            Intersection intersection = intersections.get(intersectionId);
+            if(intersection == null){
+                throw new RuntimeException("Intersections not found");
+            }
+            Map<Direction,TrafficLight> signals = intersection.getSignals();
             if(direction == Direction.NORTH_SOUTH){
                 signals.get(Direction.NORTH_SOUTH).setState(LightState.GREEN);
                 signals.get(Direction.EAST_WEST).setState(LightState.RED);
@@ -63,10 +67,14 @@ public class TrafficLightServiceImpl implements TrafficLightService {
     }
 
     @Override
-    public CurrentStateResponse getCurrentState() {
+    public CurrentStateResponse getCurrentState(String intersectionId) {
+       Intersection intersection = intersections.get(intersectionId);
+       if(intersection == null){
+           throw new RuntimeException("Intersection Not Found");
+       }
         Map<String, String> result = new HashMap<>();
-        signals.forEach((k,v) -> result.put(k.name(),v.getState().name()));
-        return new CurrentStateResponse(result);
+        intersection.getSignals().forEach((k,v) -> result.put(k.name(),v.getState().name()));
+        return new CurrentStateResponse(result,intersectionId);
     }
 
     @Override

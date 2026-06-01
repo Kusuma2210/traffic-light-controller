@@ -11,4 +11,5 @@ import java.util.Map;
 @NoArgsConstructor
 public class CurrentStateResponse {
     private Map<String,String> states;
+    private String intersectionId;
 }

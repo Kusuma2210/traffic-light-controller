@@ -7,9 +7,9 @@ import com.natwest.trafficlight.model.SignalHistory;
 import java.util.List;
 
 public interface TrafficLightService {
-    void changeSignal(Direction direction);
+    void changeSignal(Direction direction,String intersectionId);
     void pause();
     void resume();
-    CurrentStateResponse getCurrentState();
+    CurrentStateResponse getCurrentState(String intersectionId);
     List<SignalHistory> getHistory();
 }

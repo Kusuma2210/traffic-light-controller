@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class ChangeSignalRequest {
     private String direction;
+    private String intersectionId;
 }
