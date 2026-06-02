@@ -1,8 +1,11 @@
 package com.natwest.trafficlight.model;
 
+import lombok.Data;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Data
 public class Intersection {
     private String intersectionId;
     private Map<Direction,TrafficLight> signals;
@@ -13,13 +16,7 @@ public class Intersection {
         this.signals = new ConcurrentHashMap<>();
 
         signals.put(Direction.NORTH_SOUTH,new TrafficLight(Direction.NORTH_SOUTH,LightState.GREEN));
-        signals.put(Direction.NORTH_SOUTH, new TrafficLight(Direction.EAST_WEST,LightState.RED));
+        signals.put(Direction.EAST_WEST, new TrafficLight(Direction.EAST_WEST,LightState.RED));
     }
 
-    public String getIntersectionId(){
-        return intersectionId;
-    }
-    public Map<Direction,TrafficLight> getSignals(){
-        return signals;
-    }
 }
