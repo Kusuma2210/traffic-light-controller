@@ -1,6 +1,8 @@
 package com.natwest.trafficlight.service;
 
 import com.natwest.trafficlight.dto.CurrentStateResponse;
+import com.natwest.trafficlight.exception.ControllerPausedException;
+import com.natwest.trafficlight.exception.IntersectionNotFoundException;
 import com.natwest.trafficlight.model.*;
 import org.springframework.boot.webmvc.autoconfigure.DispatcherServletRegistrationBean;
 import org.springframework.stereotype.Service;
@@ -30,12 +32,12 @@ public class TrafficLightServiceImpl implements TrafficLightService {
         lock.lock();
         try{
             if(paused){
-                throw new RuntimeException("Paused");
+                throw new ControllerPausedException();
             }
 
             Intersection intersection = intersections.get(intersectionId);
             if(intersection == null){
-                throw new RuntimeException("Intersections not found");
+                throw new IntersectionNotFoundException(intersectionId);
             }
             Map<Direction,TrafficLight> signals = intersection.getSignals();
             if(direction == Direction.NORTH_SOUTH){
@@ -70,7 +72,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
     public CurrentStateResponse getCurrentState(String intersectionId) {
        Intersection intersection = intersections.get(intersectionId);
        if(intersection == null){
-           throw new RuntimeException("Intersection Not Found");
+           throw new IntersectionNotFoundException(intersectionId);
        }
         Map<String, String> result = new HashMap<>();
         intersection.getSignals().forEach((k,v) -> result.put(k.name(),v.getState().name()));

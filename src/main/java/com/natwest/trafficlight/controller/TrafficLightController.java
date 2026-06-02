@@ -5,6 +5,7 @@ import com.natwest.trafficlight.dto.CurrentStateResponse;
 import com.natwest.trafficlight.model.Direction;
 import com.natwest.trafficlight.model.SignalHistory;
 import com.natwest.trafficlight.service.TrafficLightService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class TrafficLightController {
         this.service = service;
     }
     @PostMapping("/change")
-    public String changeSignal(@RequestBody ChangeSignalRequest request,String intersectionId){
+    public String changeSignal(@Valid @RequestBody ChangeSignalRequest request, String intersectionId){
         service.changeSignal(Direction.valueOf(request.getDirection()),request.getIntersectionId());
         return "Signal Changed";
     }
